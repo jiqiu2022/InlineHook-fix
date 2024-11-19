@@ -615,8 +615,8 @@ void test_dlopen() {
     if (info.status != success) {
         LE("hook dlopen error=%d", info.status);
     }
-//    dump((void*)dlopen, onPreCallBack, onCallBack, "dlopen");
-//    dumpRet((void*)dlopen, onCallBack, "dlopen");
+    dump((void*)dlopen, onPreCallBack, onCallBack, "dlopen");
+    dumpRet((void*)dlopen, onCallBack, "dlopen");
 
 
 
@@ -625,7 +625,6 @@ void test_dlopen() {
     if (pInfo) {
         void *addr = pInfo->pOriFuncAddr;
         LE("add=%p", addr);
-
 //        for (int i = 0; i < 20 * 4; i += 4) {
 //        LE("%d: 0x%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x", i/4, *((unsigned char*)addr + i), *((unsigned char*)addr + i + 1),
 //            LE("%d: 0x%02x%02x%02x%02x", i / 4, *((unsigned char *) addr + i),
@@ -699,7 +698,7 @@ void test_dump_neon(){
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved){
     LE("JNI_OnLoad=%p", JNI_OnLoad);
 
-    test_dump_neon();
+//    test_dump_neon();
 
 //    test_dump();
 //    test_dump_with_ret();
@@ -730,9 +729,11 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_zhuotong_myihk_MainActivity_testdlopen(
         JNIEnv *env,
         jobject /* this */) {
-    LE("%f", retDou(0.1, 0.2));
-    test_dlopen();
+//    LE("%f", retDou(0.1, 0.2));
+//    test_dlopen();
+    test__system_property_get();
 }
+
 
 int main(){
     LE("main");
