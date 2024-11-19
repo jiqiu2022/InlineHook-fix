@@ -119,7 +119,9 @@ void default_onPreCallBack(my_pt_regs *regs, HK_INFO *pInfo) //参数regs就是�
 
     if (pInfo) {
         LE("onPreCallBack: HK_INFO=%p", pInfo);
-        if ((pInfo->pBeHookAddr == open || pInfo->pBeHookAddr == dlsym(RTLD_DEFAULT, "__open")) && regs->uregs[0]) {
+        void* open_addr = dlsym(RTLD_DEFAULT, "open");
+
+        if ((pInfo->pBeHookAddr == open_addr || pInfo->pBeHookAddr == dlsym(RTLD_DEFAULT, "__open")) && regs->uregs[0]) {
             const char* name = (const char *)(regs->uregs[0]);
             LE("onPreCallBack: open: %s , %o, %o", name, regs->uregs[1], (mode_t)regs->uregs[2]);
         }
@@ -160,7 +162,9 @@ void default_onCallBack(my_pt_regs *regs, HK_INFO *pInfo) //参数regs就是指�
 
     if (pInfo) {
         LE("onCallBack: HK_INFO=%p", pInfo);
-        if (pInfo->pBeHookAddr == open && regs->uregs[0]) {
+        void* open_addr = dlsym(RTLD_DEFAULT, "open");
+
+        if (pInfo->pBeHookAddr == open_addr && regs->uregs[0]) {
             LE("onCallBack: open ret: %d", regs->uregs[0]);
         }
     }

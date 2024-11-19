@@ -1,4 +1,4 @@
-.include "../../asm/base.s"
+.include "base.s"
 
 //.extern _dump_start
 //.extern _dump_end
@@ -135,7 +135,8 @@ get_lr_pc:
     ret;                            //仅用于获取LR/PC
 
 _hk_info:                           //结构体STR_HK_INFO
-.double 0xffffffffffffffff
+.quad 0xffffffffffffffff
+
 
 _dump_end:
 

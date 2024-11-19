@@ -4,7 +4,7 @@
 
 #include <unistd.h>
 #include "iModel.h"
-
+#include <dlfcn.h>
 static INFOS* infos;
 static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -160,7 +160,9 @@ void remove(HK_INFO *info){
 
     if (pInfo) {
         LE("onPreCallBack: HK_INFO=%p", pInfo);
-        if (pInfo->pBeHookAddr == open && regs->uregs[0]) {
+        void* open_addr = dlsym(RTLD_DEFAULT, "open");
+
+        if (pInfo->pBeHookAddr == open_addr && regs->uregs[0]) {
             const char* name = (const char *)(regs->uregs[0]);
             LE("onPreCallBack: open: %s , %o, %o", name, regs->uregs[1], (mode_t)regs->uregs[2]);
         }
@@ -233,7 +235,9 @@ void default_onCallBack(my_pt_regs *regs, HK_INFO *pInfo) //参数regs就是指�
 
     if (pInfo) {
         LE("onCallBack: HK_INFO=%p", pInfo);
-        if (pInfo->pBeHookAddr == open && regs->uregs[0]) {
+        void* open_addr = dlsym(RTLD_DEFAULT, "open");
+
+        if (pInfo->pBeHookAddr == open_addr && regs->uregs[0]) {
             LE("onCallBack: open ret: %d", regs->uregs[0]);
         }
     }

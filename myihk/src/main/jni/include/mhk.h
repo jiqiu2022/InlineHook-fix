@@ -123,7 +123,7 @@ typedef struct STR_HK_INFO{
 
     void **ppHkFunAddr;                     //上面pHkFunAddr函数在shellcode中的地址,已废弃;
     void **hk_infoAddr;                     //shellcode中HK_INFO的地址
-    void *pBeHookAddr;                      //被hook的地址/函数
+    void * pBeHookAddr;                      //被hook的地址/函数
     void *pStubShellCodeAddr;               //跳过去的shellcode stub的地址
     size_t shellCodeLength;                 //上面pStubShellCodeAddr的字节数
     void ** ppOriFuncAddr;                  //shellcode 中存放备份/修复后原函数的地址，已废弃，待去除；改成上面pHkFunAddr函数的指针，应用于解除hook

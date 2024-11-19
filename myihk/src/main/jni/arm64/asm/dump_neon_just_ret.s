@@ -116,7 +116,8 @@ get_lr_pc:
     ret;                            //仅用于获取LR/PC
 
 j_hk_info:                           //结构体STR_HK_INFO
-.double 0xffffffffffffffff
+.quad 0xffffffffffffffff
+
 
 j_dump_end:
 

@@ -222,7 +222,8 @@ get_lr_pc:
     nop;
 
 p_hk_info:                           //结构体STR_HK_INFO
-.double 0xffffffffffffffff
+.quad 0xffffffffffffffff
+
 
 replace_end:
 

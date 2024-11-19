@@ -12,6 +12,8 @@
 
 
 #include "iModel.h"
+typedef int (*open_func_ptr_t)(const char*, int, ...);
+open_func_ptr_t open_func_ptr = open;
 
 double retDou(double a, double b);
 float retFlo(float a, float b);
@@ -98,7 +100,7 @@ void onPreCallBack(my_pt_regs *regs, HK_INFO *pInfo) //参数regs就是指向栈
 
     if (pInfo) {
         LE("onPreCallBack: HK_INFO=%p", pInfo);
-        if (pInfo->pBeHookAddr == open && regs->uregs[0]) {
+        if (pInfo->pBeHookAddr == reinterpret_cast<void*>(open_func_ptr) && regs->uregs[0]) {
             const char* name = (const char *)(regs->uregs[0]);
             LE("onPreCallBack: open: %s , %o, %o", name, regs->uregs[1], (mode_t)regs->uregs[2]);
         } /*else if (pInfo->pBeHookAddr == retDou) {
@@ -219,7 +221,7 @@ void onCallBack(my_pt_regs *regs, HK_INFO *pInfo) //参数regs就是指向栈上
 
     if (pInfo) {
         LE("onCallBack: HK_INFO=%p", pInfo);
-        if (pInfo->pBeHookAddr == open && regs->uregs[0]) {
+        if (pInfo->pBeHookAddr == reinterpret_cast<void*>(open_func_ptr) && regs->uregs[0]) {
             LE("onCallBack: open ret: %ld", regs->uregs[0]);
         }
     }
@@ -327,12 +329,12 @@ int my__openat(int dirFd, const char* pathname,int flags, int mode){
 
 //因为都是hook的同一个函数是互斥的，用于演示函数的用法
 void test_dump(){
-    LE("open=%p, callback=%p", open, onPreCallBack);
-    if (dump((void *)(open), onPreCallBack, NULL, "open") != success) {
+    LE("open=%p, callback=%p", reinterpret_cast<void*>(open_func_ptr), onPreCallBack);
+    if (dump((void *)(reinterpret_cast<void*>(open_func_ptr)), onPreCallBack, NULL, "open") != success) {
         LE("hook open error");
     }
 
-    unsigned int* t = (unsigned int *)(open);
+    unsigned int* t = (unsigned int *)(reinterpret_cast<void*>(open_func_ptr));
     for (int i = 0; i < 6; ++i) {
         LE("%d:0x%x", i, *(t+i));
     }
@@ -342,8 +344,8 @@ void test_dump(){
 }
 
 void test_dump_with_ret(){
-    LE("open=%p, callback=%p", open, onPreCallBack);
-    if (dump((void *)(open), onPreCallBack, onCallBack, "open") != success) {
+    LE("open=%p, callback=%p", reinterpret_cast<void*>(open_func_ptr), onPreCallBack);
+    if (dump((void *)(reinterpret_cast<void*>(open_func_ptr)), onPreCallBack, onCallBack, "open") != success) {
         LE("hook open error");
     }
 
@@ -352,8 +354,8 @@ void test_dump_with_ret(){
 }
 
 void test_dump_ret(){
-    LE("open=%p, callback=%p", open, onPreCallBack);
-    if (dump((void *)(open), NULL, onCallBack, "open") != success) {
+    LE("open=%p, callback=%p", reinterpret_cast<void*>(open_func_ptr), onPreCallBack);
+    if (dump((void *)(reinterpret_cast<void*>(open_func_ptr)), NULL, onCallBack, "open") != success) {
         LE("hook open error");
     }
 
@@ -362,8 +364,8 @@ void test_dump_ret(){
 }
 
 void test_dump_just_ret(){
-    LE("open=%p, callback=%p", open, onPreCallBack);
-    if (dumpRet((void *)(open), onCallBack, "open") != success) {
+    LE("open=%p, callback=%p", reinterpret_cast<void*>(open_func_ptr), onPreCallBack);
+    if (dumpRet((void *)(reinterpret_cast<void*>(open_func_ptr)), onCallBack, "open") != success) {
         LE("hook open error");
     }
 
@@ -372,8 +374,8 @@ void test_dump_just_ret(){
 }
 
 void test_replace(){
-    LE("open=%p, callback=%p, test_replace=%p", open, onPreCallBack, test_replace);
-    const RetInfo info = dump_replace((void *) (open), (void *) (my_open), onPreCallBack,
+    LE("open=%p, callback=%p, test_replace=%p", reinterpret_cast<void*>(open_func_ptr), onPreCallBack, test_replace);
+    const RetInfo info = dump_replace((void *) (reinterpret_cast<void*>(open_func_ptr)), (void *) (my_open), onPreCallBack,
                                        onCallBack, "open");
     if (info.status != success) {
         LE("hook open error");
@@ -401,7 +403,7 @@ void test_replace(){
 
 //open函数不再走__open，而是__openat,9.0上arm64未导出__openat函数(只是隐藏了符号，可以自己根据字符串解析出地址)，arm导出。
 void test_justReplace(){
-    LE("open=%p, callback=%p", open, onPreCallBack);
+    LE("open=%p, callback=%p", reinterpret_cast<void*>(open_func_ptr), onPreCallBack);
 //    const RetInfo info = dump_replace(dlsym(RTLD_DEFAULT, "__openat"), (void *) (my__open), NULL,
 //                                       NULL, "__open");
     //android高版本没有__open了,__openat也隐藏符号了(只有64位隐藏了)
